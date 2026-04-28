@@ -71,7 +71,7 @@ function getMarketPrices(): { BTC: number; ETH: number; USDT: number } {
  */
 function calculateTradeActions(
   currentPosition: CurrentPosition,
-  targetAllocation: AllocationInput
+  targetAllocation: AllocationInput,
 ): TradeAction[] {
   const trades: TradeAction[] = [];
   const prices = getMarketPrices();
@@ -79,11 +79,12 @@ function calculateTradeActions(
   // Calculate current allocations
   const currentAllocations = {
     BTC:
-      (currentPosition.BTC * prices.BTC) / currentPosition.totalValue) * 100 || 0,
+      ((currentPosition.BTC * prices.BTC) / currentPosition.totalValue) * 100 ||
+      0,
     ETH:
-      ((currentPosition.ETH * prices.ETH) / currentPosition.totalValue) * 100 || 0,
-    USDT:
-      (currentPosition.USDT / currentPosition.totalValue) * 100 || 0,
+      ((currentPosition.ETH * prices.ETH) / currentPosition.totalValue) * 100 ||
+      0,
+    USDT: (currentPosition.USDT / currentPosition.totalValue) * 100 || 0,
   };
 
   // Determine trades for each asset
@@ -138,7 +139,7 @@ function calculateTradeActions(
 function addLog(
   logs: ExecutionLog[],
   level: ExecutionLog["level"],
-  message: string
+  message: string,
 ): void {
   logs.push({
     timestamp: new Date().toISOString(),
@@ -156,7 +157,7 @@ export async function executeRebalance(
   options?: {
     slippage?: number;
     dryRun?: boolean;
-  }
+  },
 ): Promise<ExecutionSummary> {
   const executionId = `exec_${Date.now()}`;
   const timestamp = new Date().toISOString();
@@ -165,13 +166,16 @@ export async function executeRebalance(
   addLog(
     logs,
     "info",
-    `Execution Agent initiated. Execution ID: ${executionId}`
+    `Execution Agent initiated. Execution ID: ${executionId}`,
   );
 
   try {
     // Step 1: Calculate trade actions
     addLog(logs, "info", "Calculating trade actions based on allocation");
-    const tradeActions = calculateTradeActions(currentPosition, targetAllocation);
+    const tradeActions = calculateTradeActions(
+      currentPosition,
+      targetAllocation,
+    );
 
     if (tradeActions.length === 0) {
       addLog(logs, "info", "No significant allocation changes detected");
@@ -187,18 +191,14 @@ export async function executeRebalance(
       };
     }
 
-    addLog(
-      logs,
-      "info",
-      `Generated ${tradeActions.length} trade action(s)`
-    );
+    addLog(logs, "info", `Generated ${tradeActions.length} trade action(s)`);
 
     // Log each trade action
     tradeActions.forEach((trade, index) => {
       addLog(
         logs,
         "info",
-        `Trade ${index + 1}: ${trade.type.toUpperCase()} ${trade.amount} ${trade.asset} @ $${trade.targetPrice} (${trade.reason})`
+        `Trade ${index + 1}: ${trade.type.toUpperCase()} ${trade.amount} ${trade.asset} @ $${trade.targetPrice} (${trade.reason})`,
       );
     });
 
@@ -215,7 +215,11 @@ export async function executeRebalance(
 
     for (const trade of tradeActions) {
       try {
-        addLog(logs, "info", `Executing ${trade.type} ${trade.amount} ${trade.asset}`);
+        addLog(
+          logs,
+          "info",
+          `Executing ${trade.type} ${trade.amount} ${trade.asset}`,
+        );
 
         const tradeData: TradeData = {
           asset: trade.asset,
@@ -234,14 +238,14 @@ export async function executeRebalance(
           addLog(
             logs,
             "success",
-            `${trade.asset} trade successful - TxHash: ${result.txHash}, Retries: ${result.retries}`
+            `${trade.asset} trade successful - TxHash: ${result.txHash}, Retries: ${result.retries}`,
           );
         } else {
           failureCount++;
           addLog(
             logs,
             "error",
-            `${trade.asset} trade failed: ${result.error || "Unknown error"}`
+            `${trade.asset} trade failed: ${result.error || "Unknown error"}`,
           );
         }
 
@@ -251,7 +255,11 @@ export async function executeRebalance(
         failureCount++;
         const errorMessage =
           error instanceof Error ? error.message : "Unknown error";
-        addLog(logs, "error", `Error executing ${trade.asset} trade: ${errorMessage}`);
+        addLog(
+          logs,
+          "error",
+          `Error executing ${trade.asset} trade: ${errorMessage}`,
+        );
       }
     }
 
@@ -270,7 +278,11 @@ export async function executeRebalance(
           ? `Failed to execute any trades. See logs for details.`
           : `Partially executed: ${successCount} successful, ${failureCount} failed`;
 
-    addLog(logs, "success", `Execution Agent completed. Status: ${overallStatus}`);
+    addLog(
+      logs,
+      "success",
+      `Execution Agent completed. Status: ${overallStatus}`,
+    );
 
     return {
       executionId,
@@ -306,7 +318,7 @@ export async function executeRebalance(
  */
 export function simulateRebalance(
   currentPosition: CurrentPosition,
-  targetAllocation: AllocationInput
+  targetAllocation: AllocationInput,
 ): {
   tradeActions: TradeAction[];
   estimatedGas: number;
@@ -344,10 +356,7 @@ export function validatePosition(position: CurrentPosition): {
     errors.push("Total portfolio value must be positive");
   }
 
-  const calculated =
-    position.BTC * 63000 +
-    position.ETH * 3100 +
-    position.USDT;
+  const calculated = position.BTC * 63000 + position.ETH * 3100 + position.USDT;
 
   if (Math.abs(calculated - position.totalValue) > 100) {
     errors.push("Position amounts do not match total value");

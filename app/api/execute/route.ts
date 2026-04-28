@@ -48,7 +48,7 @@ interface ExecuteResponse {
     txHashes: (string | null)[];
     trades: Array<{
       asset: string;
-      type: "buy" | "sell";
+      type: string;
       status: string;
       txHash: string | null;
       retries: number;
@@ -185,6 +185,9 @@ export async function POST(
     const txHashes: (string | null)[] = executionSummary.trades.map(
       (trade) => trade.result.txHash,
     );
+    const nonNullTxHashes = txHashes.filter(
+      (txHash): txHash is string => txHash !== null,
+    );
 
     // Step 5: Update decision with execution results in Memory Agent
     console.log(
@@ -195,7 +198,7 @@ export async function POST(
       tradesExecuted: executionSummary.tradesExecuted,
       tradesFailed: executionSummary.tradesFailed,
       totalGasUsed: executionSummary.totalGasUsed,
-      txHashes,
+      txHashes: nonNullTxHashes,
     });
 
     if (!updateResult.success) {
