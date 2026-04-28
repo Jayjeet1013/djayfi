@@ -1,21 +1,99 @@
 "use client";
 
-import React, { useState } from "react";
-import {
-  Brain,
-  Zap,
-  History,
-  AlertCircle,
-  CheckCircle,
-  Clock,
-} from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { Brain, Zap, AlertCircle } from "lucide-react";
 import Portfolio from "@/components/Portfolio";
 import Reasoning from "@/components/Reasoning";
 import HistoryComponent from "@/components/History";
+import AgentFlow from "@/components/AgentFlow";
+
+type RiskLevel = "low" | "medium" | "high";
+
+interface AnalyzeResponse {
+  success: boolean;
+  data?: {
+    riskLevel: RiskLevel;
+    allocation: {
+      BTC: number;
+      ETH: number;
+      USDT: number;
+    };
+    reasoning: string;
+    marketData: {
+      BTC: { price: number; change24h: number };
+      ETH: { price: number; change24h: number };
+      USDT: { price: number; change24h: number };
+    };
+  };
+  error?: string;
+}
+
+interface ExecuteResponse {
+  success: boolean;
+  data?: {
+    executionId: string;
+    status: "success" | "partial" | "failed";
+    tradesExecuted: number;
+    tradesFailed: number;
+    txHashes: (string | null)[];
+    summary: string;
+    logs: Array<{
+      timestamp: string;
+      level: "info" | "warn" | "error" | "success";
+      message: string;
+    }>;
+    timestamp: string;
+  };
+  error?: string;
+}
+
+interface HistoryResponse {
+  success: boolean;
+  data?: {
+    history: Array<{
+      id: string;
+      timestamp: string;
+      riskLevel: RiskLevel;
+      allocation: {
+        BTC: number;
+        ETH: number;
+        USDT: number;
+      };
+      reasoning: string;
+      execution?: {
+        status: "success" | "partial" | "failed";
+        tradesExecuted: number;
+        tradesFailed: number;
+        totalGasUsed?: number;
+        txHashes: string[];
+      };
+    }>;
+    count: number;
+    filters: {
+      riskLevel?: RiskLevel;
+      limit?: number;
+      offset?: number;
+    };
+    timestamp: string;
+  };
+  error?: string;
+}
 
 export default function Dashboard() {
+  const initialPortfolioValue = 10000;
+
+  type HistoryStatus = "completed" | "pending" | "failed";
+
+  interface HistoryItem {
+    id: number;
+    timestamp: string;
+    action: string;
+    status: HistoryStatus;
+    details: string;
+  }
+
   const [portfolio, setPortfolio] = useState({
-    totalValue: 10000,
+    totalValue: initialPortfolioValue,
     assets: [
       {
         name: "Bitcoin",
@@ -49,40 +127,126 @@ export default function Dashboard() {
     "medium",
   );
   const [loading, setLoading] = useState(false);
+  const [analysisError, setAnalysisError] = useState<string | null>(null);
+  const [executeError, setExecuteError] = useState<string | null>(null);
+  const [historyLoading, setHistoryLoading] = useState(true);
+  const [historyError, setHistoryError] = useState<string | null>(null);
+  const [executionLogs, setExecutionLogs] = useState<
+    Array<{
+      timestamp: string;
+      level: "info" | "warn" | "error" | "success";
+      message: string;
+    }>
+  >([]);
 
-  const [history, setHistory] = useState([
-    {
-      id: 1,
-      timestamp: "2024-04-28 14:32:00",
-      action: "Portfolio Rebalance",
-      status: "completed",
-      details: "Moved 10% from ETH to BTC",
-    },
-    {
-      id: 2,
-      timestamp: "2024-04-28 12:15:00",
-      action: "Risk Adjustment",
-      status: "completed",
-      details: "Reduced exposure to volatile assets",
-    },
-    {
-      id: 3,
-      timestamp: "2024-04-28 10:00:00",
-      action: "Initial Analysis",
-      status: "completed",
-      details: "Market sentiment: Bullish",
-    },
-  ]);
+  const [history, setHistory] = useState<HistoryItem[]>([]);
+
+  useEffect(() => {
+    const fetchHistory = async () => {
+      setHistoryLoading(true);
+      setHistoryError(null);
+
+      try {
+        const response = await fetch("/api/history");
+        const result = (await response.json()) as HistoryResponse;
+
+        if (!response.ok || !result.success || !result.data) {
+          throw new Error(result.error || "Failed to fetch history");
+        }
+
+        const mappedHistory: HistoryItem[] = result.data.history.map(
+          (decision) => {
+            const status: HistoryStatus = decision.execution
+              ? decision.execution.status === "failed"
+                ? "failed"
+                : "completed"
+              : "pending";
+
+            const details = decision.execution
+              ? `${decision.reasoning} | Execution: ${decision.execution.status} (${decision.execution.tradesExecuted} executed, ${decision.execution.tradesFailed} failed)`
+              : `${decision.reasoning} | Allocation: BTC ${decision.allocation.BTC}%, ETH ${decision.allocation.ETH}%, USDT ${decision.allocation.USDT}%`;
+
+            return {
+              id:
+                Number.parseInt(decision.id.replace(/\D/g, ""), 10) ||
+                Date.now(),
+              timestamp: new Date(decision.timestamp).toLocaleString(),
+              action: `Decision ${decision.riskLevel.toUpperCase()} Risk`,
+              status,
+              details,
+            };
+          },
+        );
+
+        setHistory(mappedHistory);
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error ? error.message : "Unknown error occurred";
+        setHistoryError(errorMessage);
+      } finally {
+        setHistoryLoading(false);
+      }
+    };
+
+    void fetchHistory();
+  }, []);
 
   const handleAnalyze = async () => {
     setLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      setReasoning(
-        `Analysis complete for ${riskLevel.toUpperCase()} risk profile. Current market conditions suggest a ${riskLevel === "low" ? "conservative" : riskLevel === "medium" ? "balanced" : "aggressive"} approach. Recommendation: ${riskLevel === "low" ? "Increase stablecoin allocation to 40%" : riskLevel === "high" ? "Increase altcoin exposure to 20%" : "Maintain current balanced allocation"}.`,
-      );
+    setAnalysisError(null);
+
+    try {
+      const response = await fetch("/api/analyze", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ riskLevel }),
+      });
+
+      const result = (await response.json()) as AnalyzeResponse;
+
+      if (!response.ok || !result.success || !result.data) {
+        throw new Error(result.error || "Failed to analyze portfolio");
+      }
+
+      const { allocation, reasoning, marketData } = result.data;
+
+      setPortfolio({
+        totalValue: initialPortfolioValue,
+        assets: [
+          {
+            name: "Bitcoin",
+            symbol: "BTC",
+            allocation: allocation.BTC,
+            value: Math.round((initialPortfolioValue * allocation.BTC) / 100),
+            change: marketData.BTC.change24h,
+          },
+          {
+            name: "Ethereum",
+            symbol: "ETH",
+            allocation: allocation.ETH,
+            value: Math.round((initialPortfolioValue * allocation.ETH) / 100),
+            change: marketData.ETH.change24h,
+          },
+          {
+            name: "USDT",
+            symbol: "USDT",
+            allocation: allocation.USDT,
+            value: Math.round((initialPortfolioValue * allocation.USDT) / 100),
+            change: marketData.USDT.change24h,
+          },
+        ],
+      });
+
+      setReasoning(reasoning);
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error occurred";
+      setAnalysisError(errorMessage);
+    } finally {
       setLoading(false);
-    }, 1500);
+    }
   };
 
   const handleExecute = () => {
@@ -95,6 +259,93 @@ export default function Dashboard() {
       details: `Executed ${riskLevel} risk portfolio allocation`,
     };
     setHistory([newTrade, ...history]);
+  };
+
+  const handleExecutePortfolio = async () => {
+    setLoading(true);
+    setExecuteError(null);
+
+    try {
+      const currentPosition = {
+        BTC: Number(
+          (portfolio.assets.find((asset) => asset.symbol === "BTC")?.value ||
+            0) / 63000,
+        ),
+        ETH: Number(
+          (portfolio.assets.find((asset) => asset.symbol === "ETH")?.value ||
+            0) / 3100,
+        ),
+        USDT: Number(
+          portfolio.assets.find((asset) => asset.symbol === "USDT")?.value || 0,
+        ),
+        totalValue: portfolio.totalValue,
+      };
+
+      const targetAllocation = {
+        BTC:
+          portfolio.assets.find((asset) => asset.symbol === "BTC")
+            ?.allocation || 0,
+        ETH:
+          portfolio.assets.find((asset) => asset.symbol === "ETH")
+            ?.allocation || 0,
+        USDT:
+          portfolio.assets.find((asset) => asset.symbol === "USDT")
+            ?.allocation || 0,
+      };
+
+      const response = await fetch("/api/execute", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          currentPosition,
+          targetAllocation,
+          riskLevel,
+          reasoning,
+          slippage: 0.5,
+        }),
+      });
+
+      const result = (await response.json()) as ExecuteResponse;
+
+      if (!response.ok || !result.success || !result.data) {
+        throw new Error(result.error || "Failed to execute trade");
+      }
+
+      setExecutionLogs(result.data.logs);
+
+      const txHashSummary = result.data.txHashes
+        .filter((txHash): txHash is string => Boolean(txHash))
+        .join(", ");
+
+      const executionStatus: HistoryStatus =
+        result.data.status === "failed" ? "failed" : "completed";
+
+      const newTrade = {
+        id: history.length + 1,
+        timestamp: new Date().toLocaleString(),
+        action: `Execution ${result.data.status}`,
+        status: executionStatus,
+        details: `${result.data.summary}${txHashSummary ? ` | Tx: ${txHashSummary}` : ""}`,
+      };
+
+      setHistory([newTrade, ...history]);
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error occurred";
+      setExecuteError(errorMessage);
+      setExecutionLogs((previousLogs) => [
+        ...previousLogs,
+        {
+          timestamp: new Date().toISOString(),
+          level: "error",
+          message: errorMessage,
+        },
+      ]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -129,6 +380,8 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Column - Portfolio & Analysis */}
           <div className="lg:col-span-2 space-y-6">
+            <AgentFlow />
+
             {/* Portfolio Section */}
             <Portfolio
               totalValue={portfolio.totalValue}
@@ -160,6 +413,18 @@ export default function Dashboard() {
             {/* AI Reasoning Section */}
             <Reasoning text={reasoning} isLoading={loading} />
 
+            {analysisError && (
+              <div className="rounded-lg border border-red-800 bg-red-950/60 px-4 py-3 text-sm text-red-200">
+                {analysisError}
+              </div>
+            )}
+
+            {executeError && (
+              <div className="rounded-lg border border-red-800 bg-red-950/60 px-4 py-3 text-sm text-red-200">
+                {executeError}
+              </div>
+            )}
+
             {/* Analyze Button */}
             <button
               onClick={handleAnalyze}
@@ -178,7 +443,7 @@ export default function Dashboard() {
               </div>
 
               <div className="bg-blue-900 bg-opacity-30 border border-blue-800 rounded p-4 mb-4 flex items-start gap-3">
-                <AlertCircle className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
+                <AlertCircle className="w-5 h-5 text-blue-400 shrink-0 mt-0.5" />
                 <div>
                   <p className="font-medium text-blue-200">Ready to Execute</p>
                   <p className="text-sm text-blue-300">
@@ -200,17 +465,78 @@ export default function Dashboard() {
               </div>
 
               <button
-                onClick={handleExecute}
-                className="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-3 rounded-lg transition-all flex items-center justify-center gap-2"
+                onClick={handleExecutePortfolio}
+                disabled={loading}
+                className="w-full bg-yellow-500 hover:bg-yellow-600 disabled:bg-yellow-700/60 text-black font-bold py-3 rounded-lg transition-all flex items-center justify-center gap-2"
               >
                 <Zap className="w-5 h-5" />
-                Execute Trade
+                {loading ? "Executing..." : "Execute Trade"}
               </button>
+            </div>
+
+            <div className="bg-gray-900 rounded-lg border border-gray-800 p-6">
+              <div className="flex items-center justify-between gap-3 mb-4">
+                <h2 className="text-xl font-semibold">Execution Logs</h2>
+                <span className="text-xs text-gray-400">
+                  {executionLogs.length} entries
+                </span>
+              </div>
+
+              {executionLogs.length === 0 ? (
+                <p className="text-sm text-gray-400">
+                  Execute a trade to view KeeperHub logs here.
+                </p>
+              ) : (
+                <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
+                  {executionLogs.map((log, index) => (
+                    <div
+                      key={`${log.timestamp}-${index}`}
+                      className="rounded-md border border-gray-800 bg-black/30 px-3 py-2"
+                    >
+                      <div className="flex items-center justify-between gap-3 text-xs text-gray-500">
+                        <span className="uppercase tracking-wide text-gray-400">
+                          {log.level}
+                        </span>
+                        <span>
+                          {new Date(log.timestamp).toLocaleTimeString()}
+                        </span>
+                      </div>
+                      <p className="mt-1 text-sm text-gray-100">
+                        {log.message}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
           {/* Right Column - History */}
-          <HistoryComponent items={history} />
+          <div className="space-y-4">
+            {historyLoading ? (
+              <div className="bg-gray-900 rounded-lg border border-gray-800 p-6 h-fit">
+                <div className="flex items-center justify-between gap-3 mb-4">
+                  <h2 className="text-xl font-semibold">Trade History</h2>
+                  <span className="text-xs text-gray-400">Loading...</span>
+                </div>
+                <div className="space-y-3 animate-pulse">
+                  <div className="h-20 rounded-lg bg-gray-800/80" />
+                  <div className="h-20 rounded-lg bg-gray-800/80" />
+                  <div className="h-20 rounded-lg bg-gray-800/80" />
+                </div>
+              </div>
+            ) : historyError ? (
+              <div className="bg-gray-900 rounded-lg border border-red-800 p-6 h-fit">
+                <div className="flex items-center justify-between gap-3 mb-4">
+                  <h2 className="text-xl font-semibold">Trade History</h2>
+                  <span className="text-xs text-red-300">Error</span>
+                </div>
+                <p className="text-sm text-red-200">{historyError}</p>
+              </div>
+            ) : (
+              <HistoryComponent items={history} />
+            )}
+          </div>
         </div>
       </main>
     </div>
