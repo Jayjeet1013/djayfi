@@ -60,7 +60,7 @@ export default function Reasoning({ text, isLoading = false }: ReasoningProps) {
           <Sparkles className="w-3 h-3 text-purple-400" />
           <span>AI Generated Analysis</span>
         </div>
-        <span>{new Date().toLocaleTimeString()}</span>
+        <span>Updated now</span>
       </div>
     </div>
   );
