@@ -95,6 +95,64 @@ All in a decentralized environment.
 
 ---
 
-## 🙌 Author
+Architecture Diagram
 
-Built by Jayjeet Kumar
+                    ┌────────────────────────────┐
+                    │        Frontend UI         │
+                    │  (Next.js + Tailwind)      │
+                    │                            │
+                    │  - Dashboard               │
+                    │  - Portfolio View          │
+                    │  - Reasoning Panel         │
+                    │  - History Logs            │
+                    └────────────┬───────────────┘
+                                 │
+                                 │ API Calls
+                                 ▼
+                    ┌────────────────────────────┐
+                    │        API Layer           │
+                    │   (Next.js API Routes)     │
+                    │                            │
+                    │  /api/analyze              │
+                    │  /api/execute              │
+                    │  /api/history              │
+                    └────────────┬───────────────┘
+                                 │
+                                 ▼
+              ┌────────────────────────────────────┐
+              │         Agent Orchestrator         │
+              │   (Controls flow between agents)   │
+              └────────────┬────────────┬──────────┘
+                           │            │
+                           ▼            ▼
+
+        ┌──────────────────────┐   ┌──────────────────────┐
+        │    Market Agent      │   │    Strategy Agent    │
+        │----------------------│   │----------------------│
+        │ Fetch crypto prices  │   │ Decide allocation    │
+        │ (CoinGecko API)      │   │ Based on risk level  │
+        └────────────┬─────────┘   └────────────┬─────────┘
+                     │                          │
+                     ▼                          ▼
+                ┌────────────────────────────────────┐
+                │           Risk Agent               │
+                │------------------------------------│
+                │ Validate & adjust portfolio        │
+                │ Ensure safe allocation limits      │
+                └────────────┬───────────────────────┘
+                             │
+                             ▼
+                ┌────────────────────────────────────┐
+                │     Execution Agent (KeeperHub)    │
+                │------------------------------------│
+                │ Simulate transaction execution     │
+                │ Retry logic + txHash + logs        │
+                └────────────┬───────────────────────┘
+                             │
+                             ▼
+                ┌────────────────────────────────────┐
+                │     Memory Agent (0G Storage)      │
+                │------------------------------------│
+                │ Save decisions & history           │
+                │ Persistent learning simulation     │
+                └────────────────────────────────────┘
