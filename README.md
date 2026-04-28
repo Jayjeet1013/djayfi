@@ -1,36 +1,100 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# DJayFi 🚀
 
-## Getting Started
+**Autonomous AI Agent for DeFi Portfolio Management**
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 🧠 About the Project
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+DJayFi is an AI-powered DeFi agent that helps users manage their crypto portfolio in a smart and simple way.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+It can:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+* Analyze market data
+* Suggest portfolio allocation
+* Explain its decisions
+* Simulate trade execution
+* Store past decisions and learn over time
 
-## Learn More
+The goal of DJayFi is to show how AI agents can be used in Web3 to make better financial decisions.
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## ⚙️ How It Works
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+DJayFi is built using a **multi-agent system**, where each agent has a specific role:
 
-## Deploy on Vercel
+* **Market Agent** → Fetches crypto prices
+* **Strategy Agent** → Decides portfolio allocation based on risk
+* **Risk Agent** → Ensures safe investment distribution
+* **Execution Agent** → Simulates trade execution
+* **Memory Agent** → Stores history and past decisions
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Flow:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. User selects risk level
+2. Clicks “Analyze Portfolio”
+3. AI generates portfolio allocation
+4. AI explains reasoning
+5. User clicks “Execute Trade”
+6. System simulates execution
+7. Data is stored and shown in history
+
+---
+
+## 🧩 Features
+
+* 🤖 AI-based portfolio suggestions
+* 🧠 Human-like reasoning explanations
+* 🔄 Multi-agent architecture
+* 📊 Portfolio visualization
+* 📜 History tracking (memory)
+* ⚡ Simulated onchain execution
+
+---
+
+## 🔌 Tech Stack
+
+* **Frontend:** Next.js, Tailwind CSS
+* **Backend:** Next.js API routes
+* **AI Logic:** Custom agent system
+* **Memory:** 0G-style storage (simulated)
+* **Execution:** KeeperHub-style execution (simulated)
+
+---
+
+## 🎥 Demo Focus
+
+This project demonstrates:
+
+* How AI agents can collaborate
+* How decisions are made step-by-step
+* How execution and memory work together
+
+---
+
+## 🚀 Future Improvements
+
+* Integrate real 0G SDK for storage and compute
+* Connect real KeeperHub for onchain execution
+* Add real-time market data and advanced strategies
+* Support more tokens and DeFi protocols
+
+---
+
+## 🏆 Goal
+
+The main goal of DJayFi is to build a simple but powerful AI system that can:
+
+* Think
+* Decide
+* Act
+* Learn
+
+All in a decentralized environment.
+
+---
+
+## 🙌 Author
+
+Built by Jayjeet Kumar
