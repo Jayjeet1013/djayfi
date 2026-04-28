@@ -24,7 +24,7 @@ export default function Portfolio({ totalValue, assets }: PortfolioProps) {
   const getAssetColor = (symbol: string): string => {
     switch (symbol) {
       case "BTC":
-        return "from-orange-500 to-orange-600";
+        return "from-amber-500 to-amber-600";
       case "ETH":
         return "from-purple-500 to-purple-600";
       case "USDT":
@@ -35,17 +35,23 @@ export default function Portfolio({ totalValue, assets }: PortfolioProps) {
   };
 
   return (
-    <div className="bg-gray-900 rounded-lg border border-gray-800 p-6">
+    <div className="bg-white/5 rounded-xl border border-white/10 p-8 backdrop-blur-md hover:bg-white/[0.07] transition-colors duration-300">
       {/* Header */}
-      <div className="flex items-center gap-2 mb-6">
+      <div className="flex items-center gap-3 mb-6">
         <TrendingUp className="w-5 h-5 text-blue-400" />
-        <h2 className="text-xl font-semibold">Portfolio Allocation</h2>
+        <h2 className="text-2xl font-semibold text-white">
+          Portfolio Allocation
+        </h2>
       </div>
 
       {/* Total Value */}
-      <div className="mb-6 pb-6 border-b border-gray-800">
-        <p className="text-gray-400 text-sm mb-1">Total Portfolio Value</p>
-        <p className="text-3xl font-bold">${totalValue.toLocaleString()}</p>
+      <div className="mb-8 pb-8 border-b border-white/10">
+        <p className="text-gray-400 text-sm font-medium mb-2">
+          Total Portfolio Value
+        </p>
+        <p className="text-4xl font-bold bg-linear-to-r from-blue-400 to-blue-300 bg-clip-text text-transparent">
+          ${totalValue.toLocaleString()}
+        </p>
       </div>
 
       {/* Assets */}
@@ -55,15 +61,15 @@ export default function Portfolio({ totalValue, assets }: PortfolioProps) {
             {/* Asset Header */}
             <div className="flex justify-between items-start">
               <div>
-                <p className="font-medium text-white">{asset.name}</p>
-                <p className="text-xs text-gray-400 mt-0.5">{asset.symbol}</p>
+                <p className="font-semibold text-white text-sm">{asset.name}</p>
+                <p className="text-xs text-gray-400 mt-1">{asset.symbol}</p>
               </div>
               <div className="text-right">
                 <p className="font-semibold text-white">
                   ${asset.value.toLocaleString()}
                 </p>
                 <p
-                  className={`text-xs font-medium ${
+                  className={`text-xs font-medium mt-1 ${
                     asset.change >= 0 ? "text-green-400" : "text-red-400"
                   }`}
                 >
@@ -74,17 +80,17 @@ export default function Portfolio({ totalValue, assets }: PortfolioProps) {
             </div>
 
             {/* Progress Bar */}
-            <div className="space-y-1">
+            <div className="space-y-2">
               <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-400">
-                  {asset.allocation}%
+                <span className="text-xs text-gray-400 font-medium">
+                  {asset.allocation}% allocation
                 </span>
               </div>
-              <div className="w-full bg-gray-800 rounded-full h-3 overflow-hidden">
+              <div className="w-full bg-white/5 rounded-full h-2 overflow-hidden border border-white/10">
                 <div
-                  className={`h-3 rounded-full bg-gradient-to-r ${getAssetColor(
+                  className={`h-2 rounded-full bg-linear-to-r ${getAssetColor(
                     asset.symbol,
-                  )} transition-all duration-500`}
+                  )} transition-all duration-500 shadow-lg shadow-current/30`}
                   style={{ width: `${asset.allocation}%` }}
                 />
               </div>
@@ -94,10 +100,12 @@ export default function Portfolio({ totalValue, assets }: PortfolioProps) {
       </div>
 
       {/* Summary Stats */}
-      <div className="mt-8 pt-6 border-t border-gray-800 grid grid-cols-3 gap-4">
+      <div className="mt-8 pt-8 border-t border-white/10 grid grid-cols-3 gap-4">
         {sortedAssets.map((asset) => (
           <div key={`stat-${asset.symbol}`} className="text-center">
-            <p className="text-xs text-gray-400 mb-1">{asset.symbol}</p>
+            <p className="text-xs text-gray-400 mb-2 font-medium">
+              {asset.symbol}
+            </p>
             <p className="text-sm font-semibold text-white">
               {asset.allocation}%
             </p>

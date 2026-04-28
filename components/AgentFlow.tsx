@@ -48,37 +48,39 @@ export default function AgentFlow() {
   }, [isPlaying]);
 
   return (
-    <div className="bg-gray-900 rounded-lg border border-gray-800 p-6">
-      <div className="mb-4 flex items-center justify-between gap-3">
+    <div className="bg-white/5 rounded-xl border border-white/10 p-8 backdrop-blur-md hover:bg-white/[0.07] transition-colors duration-300">
+      <div className="mb-6 flex items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl font-semibold text-white">Agent Flow</h2>
-          <p className="text-xs text-gray-400">Live demo state progression</p>
+          <h2 className="text-2xl font-semibold text-white">Agent Pipeline</h2>
+          <p className="text-sm text-gray-400 mt-2 font-medium">
+            AI agent orchestration pipeline
+          </p>
         </div>
         <button
           type="button"
           onClick={() => setIsPlaying((current) => !current)}
-          className="inline-flex items-center gap-2 rounded-full border border-gray-700 bg-black/30 px-3 py-1.5 text-xs font-medium text-gray-200 transition-colors hover:border-gray-500 hover:bg-black/50"
+          className="inline-flex items-center gap-2 rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-xs font-semibold text-white transition-all duration-200 hover:border-white/30 hover:bg-white/15 backdrop-blur-sm"
         >
-          <Sparkles className="h-3.5 w-3.5 text-purple-300" />
-          {isPlaying ? "Pause demo" : "Play demo"}
+          <Sparkles className="h-4 w-4 text-blue-300" />
+          {isPlaying ? "Pause" : "Play"}
         </button>
       </div>
 
-      <div className="mb-5 flex h-2 overflow-hidden rounded-full bg-gray-800">
+      <div className="mb-6 flex h-1.5 overflow-hidden rounded-full bg-white/10 backdrop-blur-sm border border-white/5">
         {steps.map((_, index) => (
           <div
             key={index}
             className={`transition-all duration-500 ease-out ${
               index <= activeStep
-                ? "bg-linear-to-r from-purple-500 to-blue-500"
-                : "bg-transparent"
+                ? "bg-linear-to-r from-purple-500 via-blue-500 to-blue-400 shadow-lg shadow-blue-500/50"
+                : "bg-white/5"
             }`}
             style={{ width: `${100 / steps.length}%` }}
           />
         ))}
       </div>
 
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         {steps.map((step, index) => {
           const isActive = index === activeStep;
           const isComplete = index < activeStep;
@@ -86,29 +88,29 @@ export default function AgentFlow() {
           return (
             <React.Fragment key={step.title}>
               <div
-                className={`flex-1 rounded-lg border px-4 py-5 text-center shadow-sm transition-all duration-500 ease-out ${
+                className={`flex-1 rounded-lg border px-4 py-4 text-center transition-all duration-500 ease-out ${
                   isActive
-                    ? "border-purple-500 bg-purple-950/70 text-white shadow-purple-950/30 scale-[1.02]"
+                    ? "border-purple-400/50 bg-linear-to-br from-purple-600/20 to-purple-700/10 backdrop-blur-md text-white shadow-xl shadow-purple-500/20 scale-[1.03]"
                     : isComplete
-                      ? "border-green-700 bg-green-950/40 text-green-100"
-                      : "border-gray-700 bg-black/30 text-gray-300"
+                      ? "border-green-500/30 bg-linear-to-br from-green-500/15 to-green-600/5 backdrop-blur-sm text-green-100"
+                      : "border-white/10 bg-white/5 text-gray-400 hover:border-white/20 hover:bg-white/10"
                 }`}
               >
-                <div className="text-[10px] uppercase tracking-[0.2em] text-gray-400">
+                <div className="text-[11px] uppercase tracking-wider font-semibold text-gray-400">
                   {step.title}
                 </div>
-                <div className="mt-2 text-sm font-semibold uppercase tracking-wide">
+                <div className="mt-1.5 text-xs font-semibold text-current">
                   {step.label}
                 </div>
-                <p className="mt-2 text-xs leading-relaxed text-gray-400 transition-colors duration-500">
+                <p className="mt-1.5 text-xs leading-tight text-current/80 transition-colors duration-500">
                   {step.description}
                 </p>
               </div>
 
               {index < steps.length - 1 && (
-                <div className="flex items-center justify-center text-gray-500 md:flex-none md:px-1">
-                  <ArrowRight className="hidden h-5 w-5 transition-transform duration-500 md:block" />
-                  <span className="text-lg md:hidden">↓</span>
+                <div className="flex items-center justify-center text-gray-400 md:flex-none md:px-1">
+                  <ArrowRight className="hidden h-4 w-4 transition-transform duration-500 md:block" />
+                  <span className="text-sm md:hidden">↓</span>
                 </div>
               )}
             </React.Fragment>
@@ -116,11 +118,13 @@ export default function AgentFlow() {
         })}
       </div>
 
-      <div className="mt-4 flex items-center justify-between text-xs text-gray-500">
-        <span>
+      <div className="mt-6 flex items-center justify-between border-t border-white/10 pt-4">
+        <span className="text-xs text-gray-500 font-medium">
           {steps[activeStep].title}: {steps[activeStep].label}
         </span>
-        <span>Market → Strategy → Risk → Execution → Memory</span>
+        <span className="text-xs text-gray-500 font-medium">
+          Market → Strategy → Risk → Execution → Memory
+        </span>
       </div>
     </div>
   );

@@ -349,27 +349,29 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-linear-to-b from-black via-slate-900 to-black text-white">
       {/* Header */}
-      <header className="border-b border-gray-800 px-6 py-6 lg:px-8">
+      <header className="border-b border-white/10 px-6 py-8 lg:px-8 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold flex items-center gap-2">
-                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                  <Brain className="w-5 h-5" />
+              <h1 className="text-4xl font-bold flex items-center gap-3">
+                <div className="w-10 h-10 bg-linear-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30">
+                  <Brain className="w-6 h-6" />
                 </div>
                 DJayFi - AI DeFi Agent
               </h1>
-              <p className="text-gray-400 mt-2">
+              <p className="text-gray-400 mt-3 text-sm font-medium">
                 Autonomous portfolio management powered by AI
               </p>
             </div>
             <div className="text-right">
-              <div className="text-2xl font-bold">
+              <div className="text-3xl font-bold bg-linear-to-r from-blue-400 to-blue-300 bg-clip-text text-transparent">
                 ${portfolio.totalValue.toLocaleString()}
               </div>
-              <div className="text-green-400 text-sm">+$240.00 (2.4%)</div>
+              <div className="text-green-400 text-sm font-medium mt-1">
+                +$240.00 (2.4%)
+              </div>
             </div>
           </div>
         </div>
@@ -389,8 +391,8 @@ export default function Dashboard() {
             />
 
             {/* Risk Level Selector */}
-            <div className="bg-gray-900 rounded-lg border border-gray-800 p-6">
-              <label className="block text-sm font-medium mb-3">
+            <div className="bg-white/5 rounded-xl border border-white/10 p-6 backdrop-blur-md hover:bg-white/[0.07] transition-colors duration-300">
+              <label className="block text-sm font-semibold mb-4 text-white">
                 Risk Profile
               </label>
               <div className="flex gap-3">
@@ -398,10 +400,10 @@ export default function Dashboard() {
                   <button
                     key={level}
                     onClick={() => setRiskLevel(level)}
-                    className={`px-4 py-2 rounded-lg font-medium text-sm transition-all ${
+                    className={`px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${
                       riskLevel === level
-                        ? "bg-blue-600 text-white"
-                        : "bg-gray-800 text-gray-300 hover:bg-gray-700"
+                        ? "bg-linear-to-r from-blue-600 to-blue-500 text-white shadow-lg shadow-blue-500/30"
+                        : "bg-white/5 text-gray-300 border border-white/10 hover:bg-white/10 hover:border-white/20"
                     }`}
                   >
                     {level.charAt(0).toUpperCase() + level.slice(1)}
@@ -414,13 +416,13 @@ export default function Dashboard() {
             <Reasoning text={reasoning} isLoading={loading} />
 
             {analysisError && (
-              <div className="rounded-lg border border-red-800 bg-red-950/60 px-4 py-3 text-sm text-red-200">
+              <div className="rounded-xl border border-red-500/20 bg-red-500/10 backdrop-blur-md px-4 py-3 text-sm text-red-300">
                 {analysisError}
               </div>
             )}
 
             {executeError && (
-              <div className="rounded-lg border border-red-800 bg-red-950/60 px-4 py-3 text-sm text-red-200">
+              <div className="rounded-xl border border-red-500/20 bg-red-500/10 backdrop-blur-md px-4 py-3 text-sm text-red-300">
                 {executeError}
               </div>
             )}
@@ -429,55 +431,59 @@ export default function Dashboard() {
             <button
               onClick={handleAnalyze}
               disabled={loading}
-              className="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 text-white font-medium py-3 rounded-lg transition-all flex items-center justify-center gap-2"
+              className="w-full bg-linear-to-r from-purple-600 to-purple-500 hover:from-purple-700 hover:to-purple-600 disabled:from-gray-600 disabled:to-gray-600 text-white font-semibold py-3 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-purple-500/30 hover:shadow-purple-500/40 disabled:shadow-none"
             >
               <Brain className="w-4 h-4" />
               {loading ? "Analyzing..." : "Analyze Portfolio"}
             </button>
 
             {/* Trade Execution Section */}
-            <div className="bg-gray-900 rounded-lg border border-gray-800 p-6">
-              <div className="flex items-center gap-2 mb-4">
-                <Zap className="w-5 h-5 text-yellow-400" />
-                <h2 className="text-xl font-semibold">Trade Execution</h2>
+            <div className="bg-white/5 rounded-xl border border-white/10 p-6 backdrop-blur-md hover:bg-white/[0.07] transition-colors duration-300">
+              <div className="flex items-center gap-2 mb-5">
+                <Zap className="w-5 h-5 text-amber-400" />
+                <h2 className="text-xl font-semibold text-white">
+                  Trade Execution
+                </h2>
               </div>
 
-              <div className="bg-blue-900 bg-opacity-30 border border-blue-800 rounded p-4 mb-4 flex items-start gap-3">
+              <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4 mb-6 flex items-start gap-3 backdrop-blur-sm">
                 <AlertCircle className="w-5 h-5 text-blue-400 shrink-0 mt-0.5" />
                 <div>
                   <p className="font-medium text-blue-200">Ready to Execute</p>
-                  <p className="text-sm text-blue-300">
+                  <p className="text-sm text-blue-300 mt-1">
                     Review the allocation above. Click execute to simulate
                     onchain transaction.
                   </p>
                 </div>
               </div>
 
-              <div className="space-y-3 mb-4">
+              <div className="space-y-3 mb-6">
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-400">Gas Estimate</span>
-                  <span>0.0025 ETH</span>
+                  <span className="text-white font-medium">0.0025 ETH</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-400">Slippage Impact</span>
-                  <span className="text-yellow-400">0.5%</span>
+                  <span className="text-amber-400 font-medium">0.5%</span>
                 </div>
               </div>
 
               <button
                 onClick={handleExecutePortfolio}
                 disabled={loading}
-                className="w-full bg-yellow-500 hover:bg-yellow-600 disabled:bg-yellow-700/60 text-black font-bold py-3 rounded-lg transition-all flex items-center justify-center gap-2"
+                className="w-full bg-linear-to-r from-amber-500 to-amber-400 hover:from-amber-600 hover:to-amber-500 disabled:from-gray-600 disabled:to-gray-600 text-black font-bold py-3 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-amber-500/30 hover:shadow-amber-500/40 disabled:shadow-none"
               >
                 <Zap className="w-5 h-5" />
                 {loading ? "Executing..." : "Execute Trade"}
               </button>
             </div>
 
-            <div className="bg-gray-900 rounded-lg border border-gray-800 p-6">
+            <div className="bg-white/5 rounded-xl border border-white/10 p-6 backdrop-blur-md hover:bg-white/[0.07] transition-colors duration-300">
               <div className="flex items-center justify-between gap-3 mb-4">
-                <h2 className="text-xl font-semibold">Execution Logs</h2>
-                <span className="text-xs text-gray-400">
+                <h2 className="text-xl font-semibold text-white">
+                  Execution Logs
+                </h2>
+                <span className="text-xs text-gray-400 font-medium">
                   {executionLogs.length} entries
                 </span>
               </div>
@@ -487,21 +493,21 @@ export default function Dashboard() {
                   Execute a trade to view KeeperHub logs here.
                 </p>
               ) : (
-                <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
+                <div className="space-y-2 max-h-64 overflow-y-auto pr-2">
                   {executionLogs.map((log, index) => (
                     <div
                       key={`${log.timestamp}-${index}`}
-                      className="rounded-md border border-gray-800 bg-black/30 px-3 py-2"
+                      className="rounded-lg border border-white/10 bg-white/3 hover:bg-white/6 px-3 py-2 transition-colors duration-200 backdrop-blur-sm"
                     >
-                      <div className="flex items-center justify-between gap-3 text-xs text-gray-500">
-                        <span className="uppercase tracking-wide text-gray-400">
+                      <div className="flex items-center justify-between gap-3 text-xs text-gray-400">
+                        <span className="uppercase tracking-wide font-medium text-gray-300">
                           {log.level}
                         </span>
-                        <span>
+                        <span className="text-gray-500">
                           {new Date(log.timestamp).toLocaleTimeString()}
                         </span>
                       </div>
-                      <p className="mt-1 text-sm text-gray-100">
+                      <p className="mt-1 text-sm text-gray-200">
                         {log.message}
                       </p>
                     </div>
@@ -514,24 +520,28 @@ export default function Dashboard() {
           {/* Right Column - History */}
           <div className="space-y-4">
             {historyLoading ? (
-              <div className="bg-gray-900 rounded-lg border border-gray-800 p-6 h-fit">
+              <div className="bg-white/5 rounded-xl border border-white/10 p-6 h-fit backdrop-blur-md">
                 <div className="flex items-center justify-between gap-3 mb-4">
-                  <h2 className="text-xl font-semibold">Trade History</h2>
+                  <h2 className="text-xl font-semibold text-white">
+                    Trade History
+                  </h2>
                   <span className="text-xs text-gray-400">Loading...</span>
                 </div>
                 <div className="space-y-3 animate-pulse">
-                  <div className="h-20 rounded-lg bg-gray-800/80" />
-                  <div className="h-20 rounded-lg bg-gray-800/80" />
-                  <div className="h-20 rounded-lg bg-gray-800/80" />
+                  <div className="h-20 rounded-lg bg-white/5" />
+                  <div className="h-20 rounded-lg bg-white/5" />
+                  <div className="h-20 rounded-lg bg-white/5" />
                 </div>
               </div>
             ) : historyError ? (
-              <div className="bg-gray-900 rounded-lg border border-red-800 p-6 h-fit">
+              <div className="bg-red-500/10 rounded-xl border border-red-500/20 p-6 h-fit backdrop-blur-md">
                 <div className="flex items-center justify-between gap-3 mb-4">
-                  <h2 className="text-xl font-semibold">Trade History</h2>
-                  <span className="text-xs text-red-300">Error</span>
+                  <h2 className="text-xl font-semibold text-white">
+                    Trade History
+                  </h2>
+                  <span className="text-xs text-red-400">Error</span>
                 </div>
-                <p className="text-sm text-red-200">{historyError}</p>
+                <p className="text-sm text-red-300">{historyError}</p>
               </div>
             ) : (
               <HistoryComponent items={history} />
