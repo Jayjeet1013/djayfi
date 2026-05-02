@@ -136,7 +136,13 @@ export async function getMarketData(): Promise<MarketData> {
   }
 
   // Fetch fresh data
-  cachedMarketData = await fetchMarketPrices();
+  const fetchedData = await fetchMarketPrices();
+
+  if (!fetchedData.success && cachedMarketData) {
+    return cachedMarketData;
+  }
+
+  cachedMarketData = fetchedData;
   lastFetchTime = now;
 
   return cachedMarketData;

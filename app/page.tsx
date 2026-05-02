@@ -37,6 +37,10 @@ interface ExecuteResponse {
     tradesFailed: number;
     txHashes: (string | null)[];
     summary: string;
+    storage?: {
+      success: boolean;
+      rootHash?: string;
+    };
     logs: Array<{
       timestamp: string;
       level: "info" | "warn" | "error" | "success";
@@ -138,6 +142,10 @@ export default function Dashboard() {
       message: string;
     }>
   >([]);
+  const [storageResult, setStorageResult] = useState<{
+    success: boolean;
+    rootHash?: string;
+  } | null>(null);
 
   const [history, setHistory] = useState<HistoryItem[]>([]);
 
@@ -264,6 +272,7 @@ export default function Dashboard() {
   const handleExecutePortfolio = async () => {
     setLoading(true);
     setExecuteError(null);
+    setStorageResult(null);
 
     try {
       const currentPosition = {
@@ -314,6 +323,7 @@ export default function Dashboard() {
       }
 
       setExecutionLogs(result.data.logs);
+      setStorageResult(result.data.storage ?? null);
 
       const txHashSummary = result.data.txHashes
         .filter((txHash): txHash is string => Boolean(txHash))
@@ -343,6 +353,7 @@ export default function Dashboard() {
           message: errorMessage,
         },
       ]);
+      setStorageResult(null);
     } finally {
       setLoading(false);
     }
@@ -477,6 +488,37 @@ export default function Dashboard() {
                 {loading ? "Executing..." : "Execute Trade"}
               </button>
             </div>
+          </div>
+
+          {/* Right Column - History */}
+          <div className="space-y-4">
+            {historyLoading ? (
+              <div className="bg-white/5 rounded-xl border border-white/10 p-6 h-fit backdrop-blur-md">
+                <div className="flex items-center justify-between gap-3 mb-4">
+                  <h2 className="text-xl font-semibold text-white">
+                    Trade History
+                  </h2>
+                  <span className="text-xs text-gray-400">Loading...</span>
+                </div>
+                <div className="space-y-3 animate-pulse">
+                  <div className="h-20 rounded-lg bg-white/5" />
+                  <div className="h-20 rounded-lg bg-white/5" />
+                  <div className="h-20 rounded-lg bg-white/5" />
+                </div>
+              </div>
+            ) : historyError ? (
+              <div className="bg-red-500/10 rounded-xl border border-red-500/20 p-6 h-fit backdrop-blur-md">
+                <div className="flex items-center justify-between gap-3 mb-4">
+                  <h2 className="text-xl font-semibold text-white">
+                    Trade History
+                  </h2>
+                  <span className="text-xs text-red-400">Error</span>
+                </div>
+                <p className="text-sm text-red-300">{historyError}</p>
+              </div>
+            ) : (
+              <HistoryComponent items={history} />
+            )}
 
             <div className="bg-white/5 rounded-xl border border-white/10 p-6 backdrop-blur-md hover:bg-white/[0.07] transition-colors duration-300">
               <div className="flex items-center justify-between gap-3 mb-4">
@@ -515,36 +557,21 @@ export default function Dashboard() {
                 </div>
               )}
             </div>
-          </div>
 
-          {/* Right Column - History */}
-          <div className="space-y-4">
-            {historyLoading ? (
-              <div className="bg-white/5 rounded-xl border border-white/10 p-6 h-fit backdrop-blur-md">
-                <div className="flex items-center justify-between gap-3 mb-4">
-                  <h2 className="text-xl font-semibold text-white">
-                    Trade History
-                  </h2>
-                  <span className="text-xs text-gray-400">Loading...</span>
+            {storageResult?.success && (
+              <div className="bg-white/5 rounded-xl border border-white/10 p-4 backdrop-blur-md">
+                <div className="flex items-center justify-between gap-3 mb-2">
+                  <p className="text-green-400 font-semibold">
+                    Stored on 0G Storage
+                  </p>
+                  <span className="text-xs bg-purple-500/20 px-2 py-1 rounded">
+                    0G Storage
+                  </span>
                 </div>
-                <div className="space-y-3 animate-pulse">
-                  <div className="h-20 rounded-lg bg-white/5" />
-                  <div className="h-20 rounded-lg bg-white/5" />
-                  <div className="h-20 rounded-lg bg-white/5" />
-                </div>
+                <p className="text-xs break-all text-gray-300">
+                  {storageResult.rootHash ?? "Root hash unavailable"}
+                </p>
               </div>
-            ) : historyError ? (
-              <div className="bg-red-500/10 rounded-xl border border-red-500/20 p-6 h-fit backdrop-blur-md">
-                <div className="flex items-center justify-between gap-3 mb-4">
-                  <h2 className="text-xl font-semibold text-white">
-                    Trade History
-                  </h2>
-                  <span className="text-xs text-red-400">Error</span>
-                </div>
-                <p className="text-sm text-red-300">{historyError}</p>
-              </div>
-            ) : (
-              <HistoryComponent items={history} />
             )}
           </div>
         </div>

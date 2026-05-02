@@ -98,15 +98,8 @@ export async function POST(
 
     if (!marketData.success) {
       console.warn(
-        "[/api/analyze] Market Agent returned error:",
+        "[/api/analyze] Market Agent returned error. Using fallback prices:",
         marketData.error,
-      );
-      return NextResponse.json(
-        {
-          success: false,
-          error: `Failed to fetch market data: ${marketData.error}`,
-        },
-        { status: 503 },
       );
     }
 

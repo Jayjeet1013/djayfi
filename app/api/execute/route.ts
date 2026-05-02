@@ -55,6 +55,10 @@ interface ExecuteResponse {
     }>;
     summary: string;
     memoryId?: string;
+    storage?: {
+      success: boolean;
+      rootHash?: string;
+    };
     logs: Array<{
       timestamp: string;
       level: "info" | "warn" | "error" | "success";
@@ -234,6 +238,7 @@ export async function POST(
         trades,
         summary: executionSummary.summary,
         memoryId: decisionId,
+        storage: executionSummary.storage,
         logs: executionSummary.logs,
         timestamp: new Date().toISOString(),
       },
@@ -310,6 +315,10 @@ export async function GET(): Promise<NextResponse> {
           ],
           summary: "string",
           memoryId: "string (decision ID in memory)",
+          storage: {
+            success: "boolean",
+            rootHash: "string (optional)",
+          },
           logs: [
             {
               timestamp: "ISO string",
@@ -374,6 +383,10 @@ export async function GET(): Promise<NextResponse> {
             summary:
               "Successfully executed all 2 trades. Total gas: 304500 units",
             memoryId: "decision_1714309200000_1",
+            storage: {
+              success: true,
+              rootHash: "0xabc123...",
+            },
             logs: [
               {
                 timestamp: "2026-04-28T14:32:00.000Z",

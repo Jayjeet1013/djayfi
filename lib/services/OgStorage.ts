@@ -21,11 +21,21 @@ export async function savePortfolio(data: any) {
 
     const [tx, err] = await indexer.upload(memData, RPC_URL, signer);
 
-    if (err) throw new Error(err);
+    if (err) {
+      throw err instanceof Error ? err : new Error(String(err));
+    }
+
+    let rootHash = "unknown";
+
+    if (tx && "rootHash" in tx) {
+      rootHash = tx.rootHash;
+    } else if (tx && "rootHashes" in tx && tx.rootHashes.length > 0) {
+      rootHash = tx.rootHashes[0];
+    }
 
     return {
       success: true,
-      rootHash: tx?.rootHash || "unknown",
+      rootHash,
     };
   } catch (error) {
     console.error("0G Storage Error:", error);

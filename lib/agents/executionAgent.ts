@@ -10,6 +10,7 @@ import {
   TradeData,
   ExecutionLog,
 } from "@/lib/services/keeperhub";
+import { savePortfolio } from "@/lib/services/OgStorage";
 
 export interface AllocationInput {
   BTC: number;
@@ -45,6 +46,10 @@ export interface ExecutionSummary {
   }>;
   logs: ExecutionLog[];
   summary: string;
+  storage?: {
+    success: boolean;
+    rootHash?: string;
+  };
 }
 
 /**
@@ -179,6 +184,15 @@ export async function executeRebalance(
 
     if (tradeActions.length === 0) {
       addLog(logs, "info", "No significant allocation changes detected");
+      const storageResult = await savePortfolio({
+        executionId,
+        allocation: targetAllocation,
+        currentPosition,
+        result: [],
+        status: "success",
+        logs,
+        timestamp,
+      });
       return {
         executionId,
         timestamp,
@@ -188,6 +202,7 @@ export async function executeRebalance(
         trades: [],
         logs,
         summary: "No trades needed - allocation already at target",
+        storage: storageResult,
       };
     }
 
@@ -284,6 +299,16 @@ export async function executeRebalance(
       `Execution Agent completed. Status: ${overallStatus}`,
     );
 
+    const storageResult = await savePortfolio({
+      executionId,
+      allocation: targetAllocation,
+      currentPosition,
+      result: executionResults,
+      status: overallStatus,
+      logs,
+      timestamp,
+    });
+
     return {
       executionId,
       timestamp,
@@ -294,6 +319,7 @@ export async function executeRebalance(
       trades: executionResults,
       logs,
       summary,
+      storage: storageResult,
     };
   } catch (error) {
     const errorMessage =
