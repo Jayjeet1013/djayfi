@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Brain, Zap, AlertCircle } from "lucide-react";
+import Image from "next/image";
+import { Zap, AlertCircle } from "lucide-react";
 import Portfolio from "@/components/Portfolio";
 import Reasoning from "@/components/Reasoning";
 import HistoryComponent from "@/components/History";
@@ -367,8 +368,14 @@ export default function Dashboard() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-4xl font-bold flex items-center gap-3">
-                <div className="w-10 h-10 bg-linear-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30">
-                  <Brain className="w-6 h-6" />
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30">
+                  <Image
+                    src="/djayfi-logo.png"
+                    alt="DJayFi logo"
+                    width={32}
+                    height={32}
+                    className="w-12 h-12"
+                  />
                 </div>
                 DJayFi - AI DeFi Agent
               </h1>
@@ -444,7 +451,13 @@ export default function Dashboard() {
               disabled={loading}
               className="w-full bg-linear-to-r from-purple-600 to-purple-500 hover:from-purple-700 hover:to-purple-600 disabled:from-gray-600 disabled:to-gray-600 text-white font-semibold py-3 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-purple-500/30 hover:shadow-purple-500/40 disabled:shadow-none"
             >
-              <Brain className="w-4 h-4" />
+              <Image
+                src="/djayfi-logo.png"
+                alt="DJayFi logo"
+                width={16}
+                height={16}
+                className="w-4 h-4"
+              />
               {loading ? "Analyzing..." : "Analyze Portfolio"}
             </button>
 
